@@ -1,0 +1,12 @@
+env
+__pycache__
+*.json
+!config.json
+!tokens.json
+*.py
+!bot.py
+*.txt
+!requirements.txt
+*.log
+!proxies.txt
+!data.txt
