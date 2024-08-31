@@ -277,7 +277,7 @@ class Tomartod:
     {hijau}Auto Claim {biru}Tomarket_ai
     
     {hijau}By: {putih}t.me/hokireceh
-    {hijau}GIthub: {putih}@hokireceh
+    {hijau}GIthub: {putih}@Hokireceh
     
     {hijau}Message: {putih}dont't forget to 'git pull' maybe the script is updated 
     
