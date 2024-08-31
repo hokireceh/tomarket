@@ -196,16 +196,27 @@ copy(decodeURIComponent(sessionStorage.SourceTarget).split('#tgWebAppData=')[1].
 You can run the script bot for 24/7 using vps / rdp. You can use `screen` application in vps linux to running the script bot in background process
 Buy cheap RDP Here : [Sign Up](https://console.idcloudhost.com/referral/1n60rk)
 
-# Discussion
+# Follow me
+* https://facebook.com/hokireceh.official
+* https://instagram.com/hokireceh <br />
+  *You can contact me with social media in above*
+# Support me
 
-If you have an question or something you can ask in here : [@hokibot](https://t.me/hokibot)
+* (Indonesia) 
+* (Global/International) https://sociabuzz.com/vania_gemash/tribe
+* Ton ```UQBOGHJAp7EXL5WgAw3E2wfOF7HBapd8YyQxU6wa7V1WZD6N```
+* Dogs ```UQBOGHJAp7EXL5WgAw3E2wfOF7HBapd8YyQxU6wa7V1WZD6N```
+* TRON / USDT (Tron20) ```TChYgcKG6zRwz5FP9UTZrAik3xDPa12M94```
 
-# Support My Work
+# QnA
 
-To support me you can buy me a coffee via website in below
+Q : Is this bot/program script required to use a proxy?
 
-- Send IDR directly via QRIS : 
-- [Indonesian] 
-- [Global] https://sociabuzz.com/vania_gemash
+A : No, this bot/program script is not required to use a proxy.
 
-# Thank you For AkasiaId <3
+Q : How can I use a proxy?
+
+A : Simply fill in the proxies.txt file according to the format I have explained.
+
+
+# Thank you < 3
