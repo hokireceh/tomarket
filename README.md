@@ -1,4 +1,4 @@
-# tomarket
+# TOMARKET
 
 Auto Claim for tomarket Telegram Bot
 
@@ -24,6 +24,8 @@ Auto Claim for tomarket Telegram Bot
 # Warning
 
 All Risks are borne by the user!
+Personal use only!
+No for Sale
 
 # Features
 
@@ -35,6 +37,7 @@ All Risks are borne by the user!
 # Register
 
 Click the following url to register : https://t.me/Tomarket_ai_bot/app?startapp=000041bn
+Buy cheap RDP Here : [Sign Up](https://console.idcloudhost.com/referral/1n60rk)
 
 # How to Use
 
@@ -49,7 +52,7 @@ Click the following url to register : https://t.me/Tomarket_ai_bot/app?startapp=
 
 ## About Proxy
 
-Register on this site to get free proxy : [Here](https://www.webshare.io/?referral_code=dwj0m9cdi4mp)
+Register on this site to get free proxy : [Here](https://www.webshare.io/?referral_code=pdrev4nizc76)
 
 You can add your proxy list in `proxies.txt` and proxy format is like example below :
 
@@ -190,6 +193,7 @@ copy(decodeURIComponent(sessionStorage.SourceTarget).split('#tgWebAppData=')[1].
 # Run for 24/7 
 
 You can run the script bot for 24/7 using vps / rdp. You can use `screen` application in vps linux to running the script bot in background process
+Buy cheap RDP Here : [Sign Up](https://console.idcloudhost.com/referral/1n60rk)
 
 # Discussion
 
@@ -203,4 +207,4 @@ To support me you can buy me a coffee via website in below
 - [Indonesian] 
 - [Global] https://sociabuzz.com/vania.gemash
 
-# Thank you < 3
+# Thank you For AkasiaId <3
