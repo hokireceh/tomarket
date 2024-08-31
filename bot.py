@@ -276,8 +276,8 @@ class Tomartod:
         banner = f"""
     {hijau}Auto Claim {biru}Tomarket_ai
     
-    {hijau}By: {putih}t.me/AkasakaID
-    {hijau}GIthub: {putih}@AkasakaID
+    {hijau}By: {putih}t.me/hokireceh
+    {hijau}GIthub: {putih}@hokireceh
     
     {hijau}Message: {putih}dont't forget to 'git pull' maybe the script is updated 
     
