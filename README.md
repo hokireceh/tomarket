@@ -206,6 +206,6 @@ To support me you can buy me a coffee via website in below
 
 - Send IDR directly via QRIS : 
 - [Indonesian] 
-- [Global] https://sociabuzz.com/vania.gemash
+- [Global] https://sociabuzz.com/vania_gemash
 
 # Thank you For AkasiaId <3
