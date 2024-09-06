@@ -18,7 +18,7 @@ putih = Fore.LIGHTWHITE_EX
 hitam = Fore.LIGHTBLACK_EX
 reset = Style.RESET_ALL
 line = putih + "~" * 50
-
+magenta = Fore.LIGHTMAGENTA_EX
 
 class Tomartod:
     def __init__(self):
