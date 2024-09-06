@@ -274,14 +274,16 @@ class Tomartod:
 
     def main(self):
         banner = f"""
-    {hijau}Auto Claim {biru}Tomarket_ai
-    
-    {hijau}By: {putih}t.me/hokireceh
-    {hijau}GIthub: {putih}@Hokireceh
-    
-    {hijau}Message: {putih}dont't forget to 'git pull' maybe the script is updated 
-    
-        """
+{magenta}╭╮╭┳┳╮╱╱╱╱╭━╮╱╱╱╱╱╱╱╱╭╮
+{magenta}┃╰╯┃╭╯╭━━╮┃╋┣┳┳━┳┳━┳━┫╰╮
+{magenta}┃╭╮┃╰╮╰━━╯┃╭┫╭┫╋┣┫┻┫━┫╭┫
+{magenta}╰╯╰┻┻╯╱╱╱╱╰╯╰╯╰┳╯┣━┻━┻━╯
+{magenta}╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╰━╯
+	{putih}Auto Claim for {hijau}Tomarket
+	{hijau}Group : {putih}@Ongkang_Ongkang
+	{putih}Channel : {hijau}@GarapanAirdrop_Indonesia 
+	{hijau}Note : {putih}Hanya untuk pemakaian pribadi
+          """
         arg = argparse.ArgumentParser()
         arg.add_argument("--data", default="data.txt")
         arg.add_argument("--config", default="config.json")
