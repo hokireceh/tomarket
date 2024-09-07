@@ -283,7 +283,8 @@ class Tomartod:
 	{hijau}Group : {putih}@airdrop_indonesia_update
 	{putih}Channel : {hijau}@GarapanAirdrop_Indonesia 
 	{hijau}Note : {putih}Hanya untuk pemakaian pribadi
-          """
+{kuning}Note : {merah}Jangan lupa ( git pull ) sebelum mulai
+        """
         arg = argparse.ArgumentParser()
         arg.add_argument("--data", default="data.txt")
         arg.add_argument("--config", default="config.json")
