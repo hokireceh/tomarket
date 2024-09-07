@@ -280,7 +280,7 @@ class Tomartod:
 {magenta}╰╯╰┻┻╯╱╱╱╱╰╯╰╯╰┳╯┣━┻━┻━╯
 {magenta}╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╰━╯
 	{putih}Auto Claim for {hijau}Tomarket
-	{hijau}Group : {putih}@Ongkang_Ongkang
+	{hijau}Group : {putih}@airdrop_indonesia_update
 	{putih}Channel : {hijau}@GarapanAirdrop_Indonesia 
 	{hijau}Note : {putih}Hanya untuk pemakaian pribadi
           """
