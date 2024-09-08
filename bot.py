@@ -183,36 +183,31 @@ class Tomartod:
                 continue
 
             self.log(f"{kuning}not time to claim !")
-            self.log(f"{kuning}end farming at : {putih}{format_end_farming}")
-            if self.play_game:
-                self.log(f"{hijau}auto play game is enable !")
-                play_pass = data.get("play_passes")
-                self.log(f"{hijau}game ticket : {putih}{play_pass}")
-                if int(play_pass) > 0:
-                    self.play_game_func(play_pass)
-                    continue
+            self.log(f"{kuning}end farming : {putih}{format_end_farming}")
+            return int(end_farming - timestamp)
 
-            _next = end_farming - timestamp
-            return _next + random.randint(self.add_time_min, self.add_time_max)
+    def load_data(self, filename):
+        if not os.path.isfile(filename):
+            self.log(f"{merah}data.txt not found !")
+            return []
+        with open(filename, "r") as file:
+            lines = file.readlines()
+        return [line.strip() for line in lines]
 
-    def load_data(self, file):
-        datas = [i for i in open(file).read().splitlines() if len(i) > 0]
-        if len(datas) <= 0:
-            print(
-                f"{merah}0 account detected from {file}, fill your data in {file} first !{reset}"
-            )
-            sys.exit()
+    def load_config(self, filename):
+        if not os.path.isfile(filename):
+            self.log(f"{merah}config.json not found !")
+            return
 
-        return datas
+        with open(filename, "r") as file:
+            config = json.load(file)
 
-    def load_config(self, file):
-        config = json.loads(open(file).read())
-        self.interval = config["interval"]
-        self.play_game = config["play_game"]
-        self.game_low_point = config["game_point"]["low"]
-        self.game_high_point = config["game_point"]["high"]
-        self.add_time_min = config["additional_time"]["min"]
-        self.add_time_max = config["additional_time"]["max"]
+        self.interval = config.get("interval", 3)
+        self.play_game = config.get("play_game", False)
+        self.game_low_point = config.get("game_point", {}).get("low", 100)
+        self.game_high_point = config.get("game_point", {}).get("high", 150)
+        self.add_time_min = config.get("additional_time", {}).get("min", 60)
+        self.add_time_max = config.get("additional_time", {}).get("max", 120)
 
     def http(self, url, headers, data):
         try:
