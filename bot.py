@@ -18,7 +18,7 @@ putih = Fore.LIGHTWHITE_EX
 hitam = Fore.LIGHTBLACK_EX
 reset = Style.RESET_ALL
 line = putih + "~" * 50
-
+magenta = Fore.LIGHTMAGENTA_EX
 
 class Tomartod:
     def __init__(self):
@@ -274,17 +274,16 @@ class Tomartod:
 
     def main(self):
         banner = f"""
-    {magenta}╭╮╭┳┳╮╱╱╱╱╭━╮╱╱╱╱╱╱╱╱╭╮
-    {magenta}┃╰╯┃╭╯╭━━╮┃╋┣┳┳━┳┳━┳━┫╰╮
-    {magenta}┃╭╮┃╰╮╰━━╯┃╭┫╭┫╋┣┫┻┫━┫╭┫
-    {magenta}╰╯╰┻┻╯╱╱╱╱╰╯╰╯╰┳╯┣━┻━┻━╯
-    {magenta}╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╰━╯
-    {putih}Auto Claim for {hijau}Tomarket
-    {hijau}Group : {putih}@airdrop_indonesia_update
-    {putih}Channel : {hijau}@GarapanAirdrop_Indonesia 
-    {hijau}Note : {putih}Hanya untuk pemakaian pribadi
+{magenta}╭╮╭┳┳╮╱╱╱╱╭━╮╱╱╱╱╱╱╱╱╭╮
+{magenta}┃╰╯┃╭╯╭━━╮┃╋┣┳┳━┳┳━┳━┫╰╮
+{magenta}┃╭╮┃╰╮╰━━╯┃╭┫╭┫╋┣┫┻┫━┫╭┫
+{magenta}╰╯╰┻┻╯╱╱╱╱╰╯╰╯╰┳╯┣━┻━┻━╯
+{magenta}╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╰━╯
+	{putih}Auto Claim for {hijau}Tomarket
+	{hijau}Group : {putih}@airdrop_indonesia_update
+	{putih}Channel : {hijau}@GarapanAirdrop_Indonesia 
+	{hijau}Note : {putih}Hanya untuk pemakaian pribadi
 {kuning}Note : {merah}Jangan lupa ( git pull ) sebelum mulai
-    
         """
         arg = argparse.ArgumentParser()
         arg.add_argument("--data", default="data.txt")
