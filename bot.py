@@ -5,11 +5,15 @@ import time
 import random
 import argparse
 import requests
-from base64 import b64decode, urlsafe_b64decode
+from base64 import urlsafe_b64decode
 from datetime import datetime
 from urllib.parse import parse_qs
 from colorama import init, Fore, Style
 
+# Initialize Colorama for colored text
+init()
+
+# Define color constants
 merah = Fore.LIGHTRED_EX
 kuning = Fore.LIGHTYELLOW_EX
 hijau = Fore.LIGHTGREEN_EX
@@ -213,26 +217,26 @@ class Tomartod:
         self.add_time_min = config["additional_time"]["min"]
         self.add_time_max = config["additional_time"]["max"]
 
-    def save(self, id, token):
-        tokens = json.loads(open("tokens.json").read())
+        def save(self, id, token):
+        tokens = {}
+        if os.path.exists("tokens.json"):
+            tokens = json.loads(open("tokens.json").read())
         tokens[str(id)] = token
-        open("tokens.json", "w").write(json.dumps(tokens, indent=4))
+        with open("tokens.json", "w") as f:
+            json.dump(tokens, f, indent=4)
 
     def get(self, id):
-        tokens = json.loads(open("tokens.json").read())
-        if str(id) not in tokens.keys():
+        if not os.path.exists("tokens.json"):
             return None
-
-        return tokens[str(id)]
+        tokens = json.loads(open("tokens.json").read())
+        return tokens.get(str(id))
 
     def is_expired(self, token):
         header, payload, sign = token.split(".")
         deload = urlsafe_b64decode(payload + "==").decode()
         jeload = json.loads(deload)
         now = int(datetime.now().timestamp())
-        if now > jeload["exp"]:
-            return True
-        return False
+        return now > jeload["exp"]
 
     def http(self, url, headers, data=None):
         while True:
@@ -244,9 +248,8 @@ class Tomartod:
                     res = self.ses.post(url, headers=headers, timeout=100)
                 else:
                     res = self.ses.post(url, headers=headers, data=data, timeout=100)
-                open("http.log", "a", encoding="utf-8").write(
-                    f"{now} - {res.status_code} - {res.text}\n"
-                )
+                with open("http.log", "a", encoding="utf-8") as f:
+                    f.write(f"{now} - {res.status_code} - {res.text}\n")
                 return res
             except requests.exceptions.ProxyError:
                 print(f"{merah}bad proxy !")
@@ -279,10 +282,10 @@ class Tomartod:
 {magenta}┃╭╮┃╰╮╰━━╯┃╭┫╭┫╋┣┫┻┫━┫╭┫
 {magenta}╰╯╰┻┻╯╱╱╱╱╰╯╰╯╰┳╯┣━┻━┻━╯
 {magenta}╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╰━╯
-	{putih}Auto Claim for {hijau}Tomarket
-	{hijau}Group : {putih}@airdrop_indonesia_update
-	{putih}Channel : {hijau}@GarapanAirdrop_Indonesia 
-	{hijau}Note : {putih}Hanya untuk pemakaian pribadi
+    {putih}Auto Claim for {hijau}Tomarket
+    {hijau}Group : {putih}@airdrop_indonesia_update
+    {putih}Channel : {hijau}@GarapanAirdrop_Indonesia 
+    {hijau}Note : {putih}Hanya untuk pemakaian pribadi
 {kuning}Note : {merah}Jangan lupa ( git pull ) sebelum mulai
         """
         arg = argparse.ArgumentParser()
@@ -296,7 +299,7 @@ class Tomartod:
         print(banner)
         self.load_config(args.config)
         datas = self.load_data(args.data)
-        proxies = open(args.proxy).read().splitlines()
+        proxies = open(args.proxy).read().splitlines() if os.path.exists(args.proxy) else []
         self.log(f"{biru}total account : {putih}{len(datas)}")
         self.log(f"{biru}total proxies detected : {putih}{len(proxies)}")
         use_proxy = True if len(proxies) > 0 else False
@@ -332,12 +335,15 @@ class Tomartod:
                 result = self.get_balance()
                 print(line)
                 self.countdown(self.interval)
-                list_countdown.append(result)
+                if result is not None:
+                    list_countdown.append(result)
             _end = int(time.time())
             _tot = _end - _start
-            _min = min(list_countdown) - _tot
-            self.countdown(_min)
-
+            if list_countdown:
+                _min = min(list_countdown) - _tot
+                self.countdown(_min)
+            else:
+                self.countdown(self.interval)  # Default countdown if no valid result
 
 if __name__ == "__main__":
     try:
@@ -345,3 +351,4 @@ if __name__ == "__main__":
         app.main()
     except KeyboardInterrupt:
         sys.exit()
+
