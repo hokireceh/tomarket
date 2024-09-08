@@ -5,7 +5,7 @@
         "low": 100,
         "high": 150
     },
-    "add_time": {
+    "additional_time": {
         "min": 60,
         "max": 120
     }
