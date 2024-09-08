@@ -21,6 +21,7 @@ biru = Fore.LIGHTBLUE_EX
 putih = Fore.LIGHTWHITE_EX
 hitam = Fore.LIGHTBLACK_EX
 magenta = Fore.LIGHTMAGENTA_EX
+reset = Style.RESET_ALL
 
 class Tomartod:
     def __init__(self):
