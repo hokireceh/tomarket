@@ -13,7 +13,7 @@ from colorama import init, Fore, Style
 # Initialize Colorama
 init()
 
-# Define color constants
+# Define colors
 merah = Fore.LIGHTRED_EX
 kuning = Fore.LIGHTYELLOW_EX
 hijau = Fore.LIGHTGREEN_EX
@@ -43,27 +43,22 @@ class Tomartod:
         self.marinkitagawa = lambda data: {
             key: value[0] for key, value in parse_qs(data).items()
         }
-
+    
     def set_proxy(self, proxy=None):
         self.ses = requests.Session()
-        if proxy is not None:
+        if proxy:
             self.ses.proxies.update({"http": proxy, "https": proxy})
 
     def set_authorization(self, auth):
         self.headers["authorization"] = auth
 
     def del_authorization(self):
-        if "authorization" in self.headers.keys():
-            self.headers.pop("authorization")
+        if "authorization" in self.headers:
+            del self.headers["authorization"]
 
     def login(self, data):
         url = "https://api-web.tomarket.ai/tomarket-game/v1/user/login"
-        data = json.dumps(
-            {
-                "init_data": data,
-                "invite_code": "",
-            }
-        )
+        data = json.dumps({"init_data": data, "invite_code": ""})
         self.del_authorization()
         res = self.http(url, self.headers, data)
         if res.status_code != 200:
@@ -83,12 +78,9 @@ class Tomartod:
         if res.status_code != 200:
             self.log(f"{merah}failed start farming, check http.log last line !")
             return False
-
         data = res.json().get("data")
         end_farming = data["end_at"]
-        format_end_farming = (
-            datetime.fromtimestamp(end_farming).isoformat(" ").split(".")[0]
-        )
+        format_end_farming = datetime.fromtimestamp(end_farming).isoformat(" ").split(".")[0]
         self.log(f"{hijau}success start farming !")
 
     def end_farming(self):
@@ -98,7 +90,6 @@ class Tomartod:
         if res.status_code != 200:
             self.log(f"{merah}failed start farming, check http.log last line !")
             return False
-
         poin = res.json()["data"]["claim_this_time"]
         self.log(f"{hijau}success claim farming !")
         self.log(f"{hijau}reward : {putih}{poin}")
@@ -108,18 +99,14 @@ class Tomartod:
         data = json.dumps({"game_id": "fa873d13-d831-4d6f-8aee-9cff7a1d0db1"})
         res = self.http(url, self.headers, data)
         if res.status_code != 200:
-            self.log(f"{merah}failed claim daily sign, check http.log last line !")
+            self.log(f"{merah}failed claim daily sign,check http.log last line !")
             return False
-
         data = res.json().get("data")
         if isinstance(data, str):
             self.log(f"{kuning}maybe already sign in")
             return
-
         poin = data.get("today_points")
-        self.log(
-            f"{hijau}success claim {biru}daily sign {hijau}reward : {putih}{poin} !"
-        )
+        self.log(f"{hijau}success claim {biru}daily sign {hijau}reward : {putih}{poin} !")
         return
 
     def play_game_func(self, amount_pass):
@@ -131,18 +118,14 @@ class Tomartod:
             if res.status_code != 200:
                 self.log(f"{merah}failed start game !")
                 return
-
             self.log(f"{hijau}success {biru}start{hijau} game !")
             self.countdown(30)
             point = random.randint(self.game_low_point, self.game_high_point)
-            data_claim = json.dumps(
-                {"game_id": "59bcd12e-04e2-404c-a172-311a0084587d", "points": point}
-            )
+            data_claim = json.dumps({"game_id": "59bcd12e-04e2-404c-a172-311a0084587d", "points": point})
             res = self.http(claim_url, self.headers, data_claim)
             if res.status_code != 200:
                 self.log(f"{merah}failed claim game point !")
                 continue
-
             self.log(f"{hijau}success {biru}claim{hijau} game point : {putih}{point}")
 
     def get_balance(self):
@@ -156,35 +139,27 @@ class Tomartod:
             if data is None:
                 self.log(f"{merah}failed get data !")
                 return None
-
             timestamp = data["timestamp"]
             balance = data["available_balance"]
             self.log(f"{hijau}balance : {putih}{balance}")
             if "daily" not in data.keys():
                 self.daily_claim()
                 continue
-
             if data["daily"] is None:
                 self.daily_claim()
                 continue
-
             next_daily = data["daily"]["next_check_ts"]
             if timestamp > next_daily:
                 self.daily_claim()
-
             if "farming" not in data.keys():
                 self.log(f"{kuning}farming not started !")
                 result = self.start_farming()
                 continue
-
             end_farming = data["farming"]["end_at"]
-            format_end_farming = (
-                datetime.fromtimestamp(end_farming).isoformat(" ").split(".")[0]
-            )
+            format_end_farming = datetime.fromtimestamp(end_farming).isoformat(" ").split(".")[0]
             if timestamp > end_farming:
                 self.end_farming()
                 continue
-
             self.log(f"{kuning}not time to claim !")
             self.log(f"{kuning}end farming at : {putih}{format_end_farming}")
             if self.play_game:
@@ -194,79 +169,94 @@ class Tomartod:
                 if int(play_pass) > 0:
                     self.play_game_func(play_pass)
                     continue
-
             _next = end_farming - timestamp
             return _next + random.randint(self.add_time_min, self.add_time_max)
 
     def load_data(self, file):
         datas = [i for i in open(file).read().splitlines() if len(i) > 0]
         if len(datas) <= 0:
-            print(
-                f"{merah}0 account detected from {file}, fill your data in {file} first !{reset}"
-            )
+            print(f"{merah}0 account detected from {file}, fill your data in {file} first !{reset}")
             sys.exit()
-
         return datas
 
     def load_config(self, file):
-        config = json.loads(open(file).read())
-        self.interval = config["interval"]
-        self.play_game = config["play_game"]
-        self.game_low_point = config["game_point"]["low"]
-        self.game_high_point = config["game_point"]["high"]
-        self.add_time_min = config["add_time"]["min"]
-        self.add_time_max = config["add_time"]["max"]
+        try:
+            with open(file) as f:
+                config = json.load(f)
+                
+            # Ensure all required keys are present
+            required_keys = [
+                "interval", 
+                "play_game", 
+                "game_point", 
+                "add_time"
+            ]
+            for key in required_keys:
+                if key not in config:
+                    raise KeyError(f"Missing key in config: {key}")
+            
+            self.interval = config["interval"]
+            self.play_game = config["play_game"]
+            self.game_low_point = config["game_point"]["low"]
+            self.game_high_point = config["game_point"]["high"]
+            self.add_time_min = config["add_time"]["min"]
+            self.add_time_max = config["add_time"]["max"]
 
-    def http(self, url, headers, data):
-        res = self.ses.post(url, headers=headers, data=data)
-        with open("http.log", "a") as f:
-            f.write(f"[{datetime.now()}] {url} - {res.status_code}\n")
-            f.write(f"{data}\n")
-            f.write(f"{res.text}\n")
-        return res
+        except json.JSONDecodeError as e:
+            self.log(f"{merah}JSON decode error: {e}")
+            sys.exit()
+        except FileNotFoundError:
+            self.log(f"{merah}Config file not found!")
+            sys.exit()
+        except KeyError as e:
+            self.log(f"{merah}Key error: {e}")
+            sys.exit()
+
+    def countdown(self, sec):
+        while sec > 0:
+            mins, secs = divmod(sec, 60)
+            timeformat = '{:02d}:{:02d}'.format(mins, secs)
+            sys.stdout.write(f'\r{putih}Time remaining: {timeformat}   ')
+            sys.stdout.flush()
+            time.sleep(1)
+            sec -= 1
+        sys.stdout.write('\r')
 
     def log(self, message):
-        print(f"{putih}[{datetime.now().strftime('%H:%M:%S')}] {message}{reset}")
+        print(message)
+        with open("http.log", "a") as f:
+            f.write(f"{message}\n")
 
-    def countdown(self, seconds):
-        for i in range(seconds, 0, -1):
-            print(f"\r{putih}Waiting {i} seconds...", end="")
-            time.sleep(1)
-        print()
+    def http(self, url, headers, data):
+        try:
+            return self.ses.post(url, headers=headers, data=data)
+        except Exception as e:
+            self.log(f"{merah}HTTP request failed: {e}")
+            sys.exit()
 
     def main(self):
-        # Load configuration and data
-        self.load_config("config.json")
-        datas = self.load_data("data.txt")
-        self.log(f"{hijau}loaded {putih}{len(datas)}{hijau} accounts from {putih}data.txt")
-
+        self.log(line)
+        self.log(f"{hijau}Auto Bot started{reset}")
+        data = self.load_data("data.txt")
         while True:
-            for no, data in enumerate(datas):
-                parser = self.marinkitagawa(data)
-                user_data = parser["user"]
-
-                # Print the data to check its format
-                print(f"Data to be parsed: {user_data}")
-
-                try:
-                    user = json.loads(user_data)
-                except json.JSONDecodeError as e:
-                    self.log(f"{merah}JSON decode error: {e}")
+            for user_data in data:
+                self.set_proxy()
+                auth_token = self.login(user_data)
+                if auth_token is None:
+                    self.log(f"{merah}Failed to login with data: {user_data}")
                     continue
-
-                token = self.login(user_data)
-                if token is None:
-                    self.log(f"{merah}failed to login !")
-                    continue
-
-                self.set_authorization(token)
-                _next = self.get_balance()
-                if _next is None:
-                    self.log(f"{merah}stopped !")
-                    sys.exit()
-
-                self.countdown(_next)
+                self.set_authorization(auth_token)
+                while True:
+                    try:
+                        next_interval = self.get_balance()
+                        if next_interval is None:
+                            break
+                        self.countdown(int(next_interval))
+                    except Exception as e:
+                        self.log(f"{merah}Error: {e}")
+                        break
 
 if __name__ == "__main__":
     app = Tomartod()
+    app.load_config("config.json")
     app.main()
