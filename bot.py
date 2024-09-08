@@ -5,15 +5,11 @@ import time
 import random
 import argparse
 import requests
-from base64 import urlsafe_b64decode
+from base64 import b64decode, urlsafe_b64decode
 from datetime import datetime
 from urllib.parse import parse_qs
 from colorama import init, Fore, Style
 
-# Initialize colorama
-init(autoreset=True)
-
-# Define colors
 merah = Fore.LIGHTRED_EX
 kuning = Fore.LIGHTYELLOW_EX
 hijau = Fore.LIGHTGREEN_EX
@@ -22,11 +18,10 @@ putih = Fore.LIGHTWHITE_EX
 hitam = Fore.LIGHTBLACK_EX
 reset = Style.RESET_ALL
 line = putih + "~" * 50
-magenta = Fore.LIGHTMAGENTA_EX
+
 
 class Tomartod:
     def __init__(self):
-        self.ses = requests.Session()  # Initialize session here
         self.headers = {
             "host": "api-web.tomarket.ai",
             "connection": "keep-alive",
@@ -41,8 +36,12 @@ class Tomartod:
             "referer": "https://mini-app.tomarket.ai/",
             "accept-language": "en-US,en;q=0.9",
         }
+        self.marinkitagawa = lambda data: {
+            key: value[0] for key, value in parse_qs(data).items()
+        }
 
     def set_proxy(self, proxy=None):
+        self.ses = requests.Session()
         if proxy is not None:
             self.ses.proxies.update({"http": proxy, "https": proxy})
 
@@ -63,7 +62,7 @@ class Tomartod:
         )
         self.del_authorization()
         res = self.http(url, self.headers, data)
-        if res is None or res.status_code != 200:
+        if res.status_code != 200:
             self.log(f"{merah}failed fetch token authorization, check http.log !")
             return None
         data = res.json().get("data")
@@ -77,7 +76,7 @@ class Tomartod:
         data = json.dumps({"game_id": "53b22103-c7ff-413d-bc63-20f6fb806a07"})
         url = "https://api-web.tomarket.ai/tomarket-game/v1/farm/start"
         res = self.http(url, self.headers, data)
-        if res is None or res.status_code != 200:
+        if res.status_code != 200:
             self.log(f"{merah}failed start farming, check http.log last line !")
             return False
 
@@ -92,8 +91,8 @@ class Tomartod:
         data = json.dumps({"game_id": "53b22103-c7ff-413d-bc63-20f6fb806a07"})
         url = "https://api-web.tomarket.ai/tomarket-game/v1/farm/claim"
         res = self.http(url, self.headers, data)
-        if res is None or res.status_code != 200:
-            self.log(f"{merah}failed claim farming, check http.log last line !")
+        if res.status_code != 200:
+            self.log(f"{merah}failed start farming, check http.log last line !")
             return False
 
         poin = res.json()["data"]["claim_this_time"]
@@ -104,7 +103,7 @@ class Tomartod:
         url = "https://api-web.tomarket.ai/tomarket-game/v1/daily/claim"
         data = json.dumps({"game_id": "fa873d13-d831-4d6f-8aee-9cff7a1d0db1"})
         res = self.http(url, self.headers, data)
-        if res is None or res.status_code != 200:
+        if res.status_code != 200:
             self.log(f"{merah}failed claim daily sign,check http.log last line !")
             return False
 
@@ -125,7 +124,7 @@ class Tomartod:
         claim_url = "https://api-web.tomarket.ai/tomarket-game/v1/game/claim"
         for i in range(amount_pass):
             res = self.http(start_url, self.headers, data_game)
-            if res is None or res.status_code != 200:
+            if res.status_code != 200:
                 self.log(f"{merah}failed start game !")
                 return
 
@@ -136,7 +135,7 @@ class Tomartod:
                 {"game_id": "59bcd12e-04e2-404c-a172-311a0084587d", "points": point}
             )
             res = self.http(claim_url, self.headers, data_claim)
-            if res is None or res.status_code != 200:
+            if res.status_code != 200:
                 self.log(f"{merah}failed claim game point !")
                 continue
 
@@ -146,7 +145,7 @@ class Tomartod:
         url = "https://api-web.tomarket.ai/tomarket-game/v1/user/balance"
         while True:
             res = self.http(url, self.headers, "")
-            if res is None:
+            if res.status_code != 200:
                 self.log(f"{merah}failed fetch balance !")
                 continue
             data = res.json().get("data")
@@ -183,80 +182,167 @@ class Tomartod:
                 continue
 
             self.log(f"{kuning}not time to claim !")
-            self.log(f"{kuning}end farming : {putih}{format_end_farming}")
-            return int(end_farming - timestamp)
+            self.log(f"{kuning}end farming at : {putih}{format_end_farming}")
+            if self.play_game:
+                self.log(f"{hijau}auto play game is enable !")
+                play_pass = data.get("play_passes")
+                self.log(f"{hijau}game ticket : {putih}{play_pass}")
+                if int(play_pass) > 0:
+                    self.play_game_func(play_pass)
+                    continue
 
-    def load_data(self, filename):
-        if not os.path.isfile(filename):
-            self.log(f"{merah}data.txt not found !")
-            return []
-        with open(filename, "r") as file:
-            lines = file.readlines()
-        return [line.strip() for line in lines]
+            _next = end_farming - timestamp
+            return _next + random.randint(self.add_time_min, self.add_time_max)
 
-    def load_config(self, filename):
-        if not os.path.isfile(filename):
-            self.log(f"{merah}config.json not found !")
-            return
+    def load_data(self, file):
+        datas = [i for i in open(file).read().splitlines() if len(i) > 0]
+        if len(datas) <= 0:
+            print(
+                f"{merah}0 account detected from {file}, fill your data in {file} first !{reset}"
+            )
+            sys.exit()
 
-        with open(filename, "r") as file:
-            config = json.load(file)
+        return datas
 
-        self.interval = config.get("interval", 3)
-        self.play_game = config.get("play_game", False)
-        self.game_low_point = config.get("game_point", {}).get("low", 100)
-        self.game_high_point = config.get("game_point", {}).get("high", 150)
-        self.add_time_min = config.get("additional_time", {}).get("min", 60)
-        self.add_time_max = config.get("additional_time", {}).get("max", 120)
+    def load_config(self, file):
+        config = json.loads(open(file).read())
+        self.interval = config["interval"]
+        self.play_game = config["play_game"]
+        self.game_low_point = config["game_point"]["low"]
+        self.game_high_point = config["game_point"]["high"]
+        self.add_time_min = config["additional_time"]["min"]
+        self.add_time_max = config["additional_time"]["max"]
 
-    def http(self, url, headers, data):
-        try:
-            res = self.ses.post(url, headers=headers, data=data)
-            return res
-        except Exception as e:
-            self.log(f"{merah}HTTP request failed: {str(e)}")
+    def save(self, id, token):
+        tokens = json.loads(open("tokens.json").read())
+        tokens[str(id)] = token
+        open("tokens.json", "w").write(json.dumps(tokens, indent=4))
+
+    def get(self, id):
+        tokens = json.loads(open("tokens.json").read())
+        if str(id) not in tokens.keys():
             return None
 
-    def log(self, message):
-        print(message)
+        return tokens[str(id)]
 
-    def countdown(self, seconds):
-        for i in range(seconds, 0, -1):
-            sys.stdout.write(f"\r{putih}Waiting for {i} seconds")
-            sys.stdout.flush()
+    def is_expired(self, token):
+        header, payload, sign = token.split(".")
+        deload = urlsafe_b64decode(payload + "==").decode()
+        jeload = json.loads(deload)
+        now = int(datetime.now().timestamp())
+        if now > jeload["exp"]:
+            return True
+        return False
+
+    def http(self, url, headers, data=None):
+        while True:
+            try:
+                now = datetime.now().isoformat(" ").split(".")[0]
+                if data is None:
+                    res = self.ses.get(url, headers=headers, timeout=100)
+                elif data == "":
+                    res = self.ses.post(url, headers=headers, timeout=100)
+                else:
+                    res = self.ses.post(url, headers=headers, data=data, timeout=100)
+                open("http.log", "a", encoding="utf-8").write(
+                    f"{now} - {res.status_code} - {res.text}\n"
+                )
+                return res
+            except requests.exceptions.ProxyError:
+                print(f"{merah}bad proxy !")
+                time.sleep(1)
+
+            except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
+                print(f"{merah}connection error / connection timeout !")
+                time.sleep(1)
+                continue
+
+    def countdown(self, t):
+        for i in range(t, 0, -1):
+            menit, detik = divmod(i, 60)
+            jam, menit = divmod(menit, 60)
+            jam = str(jam).zfill(2)
+            menit = str(menit).zfill(2)
+            detik = str(detik).zfill(2)
+            print(f"{putih}waiting {jam}:{menit}:{detik}     ", flush=True, end="\r")
             time.sleep(1)
-        print()
+        print("                                        ", flush=True, end="\r")
+
+    def log(self, msg):
+        now = datetime.now().isoformat(" ").split(".")[0]
+        print(f"{hitam}[{now}]{reset} {msg}{reset}")
 
     def main(self):
-        self.banner()
-        datas = self.load_data("data.txt")
-        while True:
-            next_run = self.get_balance()
-            if next_run is not None:
-                self.countdown(next_run)
-            else:
-                self.log(f"{merah}Stopping due to errors.")
-                break
-
-    def banner(self):
-        print(f"""
-{magenta}╭╮╭┳┳╮╱╱╱╱╭━╮╱╱╱╱╱╱╱╱╭╮
-{magenta}┃╰╯┃╭╯╭━━╮┃╋┣┳┳━┳┳━┳━┫╰╮
-{magenta}┃╭╮┃╰╮╰━━╯┃╭┫╭┫╋┣┫┻┫━┫╭┫
-{magenta}╰╯╰┻┻╯╱╱╱╱╰╯╰╯╰┳╯┣━┻━┻━╯
-{magenta}╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╰━╯
+        banner = f"""
+    {magenta}╭╮╭┳┳╮╱╱╱╱╭━╮╱╱╱╱╱╱╱╱╭╮
+    {magenta}┃╰╯┃╭╯╭━━╮┃╋┣┳┳━┳┳━┳━┫╰╮
+    {magenta}┃╭╮┃╰╮╰━━╯┃╭┫╭┫╋┣┫┻┫━┫╭┫
+    {magenta}╰╯╰┻┻╯╱╱╱╱╰╯╰╯╰┳╯┣━┻━┻━╯
+    {magenta}╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╰━╯
     {putih}Auto Claim for {hijau}Tomarket
     {hijau}Group : {putih}@airdrop_indonesia_update
     {putih}Channel : {hijau}@GarapanAirdrop_Indonesia 
     {hijau}Note : {putih}Hanya untuk pemakaian pribadi
 {kuning}Note : {merah}Jangan lupa ( git pull ) sebelum mulai
-        """)
+    
+        """
+        arg = argparse.ArgumentParser()
+        arg.add_argument("--data", default="data.txt")
+        arg.add_argument("--config", default="config.json")
+        arg.add_argument("--proxy", default="proxies.txt")
+        arg.add_argument("--marinkitagawa", action="store_true")
+        args = arg.parse_args()
+        if not args.marinkitagawa:
+            os.system("cls" if os.name == "nt" else "clear")
+        print(banner)
+        self.load_config(args.config)
+        datas = self.load_data(args.data)
+        proxies = open(args.proxy).read().splitlines()
+        self.log(f"{biru}total account : {putih}{len(datas)}")
+        self.log(f"{biru}total proxies detected : {putih}{len(proxies)}")
+        use_proxy = True if len(proxies) > 0 else False
+        self.log(f"{hijau}use proxy : {putih}{use_proxy}")
+        print(line)
+        while True:
+            list_countdown = []
+            _start = int(time.time())
+            for no, data in enumerate(datas):
+                if use_proxy:
+                    proxy = proxies[no % len(proxies)]
+                self.set_proxy(proxy if use_proxy else None)
+                parser = self.marinkitagawa(data)
+                user = json.loads(parser["user"])
+                id = user["id"]
+                self.log(
+                    f"{hijau}account number : {putih}{no+1}{hijau}/{putih}{len(datas)}"
+                )
+                self.log(f"{hijau}name : {putih}{user['first_name']}")
+                token = self.get(id)
+                if token is None:
+                    token = self.login(data)
+                    if token is None:
+                        continue
+                    self.save(id, token)
+
+                if self.is_expired(token):
+                    token = self.login(data)
+                    if token is None:
+                        continue
+                    self.save(id, token)
+                self.set_authorization(token)
+                result = self.get_balance()
+                print(line)
+                self.countdown(self.interval)
+                list_countdown.append(result)
+            _end = int(time.time())
+            _tot = _end - _start
+            _min = min(list_countdown) - _tot
+            self.countdown(_min)
+
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Tomarket Bot")
-    parser.add_argument("--config", type=str, default="config.json", help="Path to configuration file.")
-    args = parser.parse_args()
-
-    app = Tomartod()
-    app.load_config(args.config)
-    app.main()
+    try:
+        app = Tomartod()
+        app.main()
+    except KeyboardInterrupt:
+        sys.exit()
