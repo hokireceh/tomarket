@@ -187,7 +187,7 @@ class Tomartod:
         for i in range(t, 0, -1):
             menit, detik = divmod(i, 60)
             jam, menit = divmod(menit, 60)
-            print(f"{putih}Waiting {jam:02}:{menit:02}:{detik:02}     ", flush=True, end="\r")
+            print(f"\r{putih}Waktu tersisa: {jam:02}:{menit:02}:{detik:02}", end="", flush=True)
             time.sleep(1)
         print(" " * 40, flush=True, end="\r")
 
