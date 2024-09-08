@@ -5,15 +5,11 @@ import time
 import random
 import argparse
 import requests
-from base64 import urlsafe_b64decode
+from base64 import b64decode, urlsafe_b64decode
 from datetime import datetime
 from urllib.parse import parse_qs
 from colorama import init, Fore, Style
 
-# Initialize Colorama for colored text
-init()
-
-# Define color constants
 merah = Fore.LIGHTRED_EX
 kuning = Fore.LIGHTYELLOW_EX
 hijau = Fore.LIGHTGREEN_EX
@@ -202,22 +198,23 @@ class Tomartod:
         datas = [i for i in open(file).read().splitlines() if len(i) > 0]
         if len(datas) <= 0:
             print(
-                f"{merah}0 account detected from {file}, fill your data in {file} first !{reset}"
+                f"{merah}0 account detected from {file}, fill your data in {file} first !"
             )
             sys.exit()
-
         return datas
 
     def load_config(self, file):
-        config = json.loads(open(file).read())
-        self.interval = config["interval"]
-        self.play_game = config["play_game"]
-        self.game_low_point = config["game_point"]["low"]
-        self.game_high_point = config["game_point"]["high"]
-        self.add_time_min = config["additional_time"]["min"]
-        self.add_time_max = config["additional_time"]["max"]
+        with open(file) as f:
+            config = json.load(f)
+        self.interval = int(config.get("interval", 60))
+        self.game_low_point = int(config.get("game_low_point", 1))
+        self.game_high_point = int(config.get("game_high_point", 10))
+        self.play_game = config.get("play_game", False)
+        self.add_time_min = int(config.get("add_time_min", 30))
+        self.add_time_max = int(config.get("add_time_max", 120))
+        self.log(f"{hijau}config loaded successfully!")
 
-        def save(self, id, token):
+    def save(self, id, token):
         tokens = {}
         if os.path.exists("tokens.json"):
             tokens = json.loads(open("tokens.json").read())
@@ -351,4 +348,3 @@ if __name__ == "__main__":
         app.main()
     except KeyboardInterrupt:
         sys.exit()
-
