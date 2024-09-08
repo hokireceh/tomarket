@@ -26,6 +26,7 @@ magenta = Fore.LIGHTMAGENTA_EX
 
 class Tomartod:
     def __init__(self):
+        self.ses = requests.Session()  # Initialize session here
         self.headers = {
             "host": "api-web.tomarket.ai",
             "connection": "keep-alive",
@@ -40,12 +41,8 @@ class Tomartod:
             "referer": "https://mini-app.tomarket.ai/",
             "accept-language": "en-US,en;q=0.9",
         }
-        self.marinkitagawa = lambda data: {
-            key: value[0] for key, value in parse_qs(data).items()
-        }
 
     def set_proxy(self, proxy=None):
-        self.ses = requests.Session()
         if proxy is not None:
             self.ses.proxies.update({"http": proxy, "https": proxy})
 
@@ -66,7 +63,7 @@ class Tomartod:
         )
         self.del_authorization()
         res = self.http(url, self.headers, data)
-        if res.status_code != 200:
+        if res is None or res.status_code != 200:
             self.log(f"{merah}failed fetch token authorization, check http.log !")
             return None
         data = res.json().get("data")
@@ -80,7 +77,7 @@ class Tomartod:
         data = json.dumps({"game_id": "53b22103-c7ff-413d-bc63-20f6fb806a07"})
         url = "https://api-web.tomarket.ai/tomarket-game/v1/farm/start"
         res = self.http(url, self.headers, data)
-        if res.status_code != 200:
+        if res is None or res.status_code != 200:
             self.log(f"{merah}failed start farming, check http.log last line !")
             return False
 
@@ -95,7 +92,7 @@ class Tomartod:
         data = json.dumps({"game_id": "53b22103-c7ff-413d-bc63-20f6fb806a07"})
         url = "https://api-web.tomarket.ai/tomarket-game/v1/farm/claim"
         res = self.http(url, self.headers, data)
-        if res.status_code != 200:
+        if res is None or res.status_code != 200:
             self.log(f"{merah}failed claim farming, check http.log last line !")
             return False
 
@@ -107,7 +104,7 @@ class Tomartod:
         url = "https://api-web.tomarket.ai/tomarket-game/v1/daily/claim"
         data = json.dumps({"game_id": "fa873d13-d831-4d6f-8aee-9cff7a1d0db1"})
         res = self.http(url, self.headers, data)
-        if res.status_code != 200:
+        if res is None or res.status_code != 200:
             self.log(f"{merah}failed claim daily sign,check http.log last line !")
             return False
 
@@ -128,7 +125,7 @@ class Tomartod:
         claim_url = "https://api-web.tomarket.ai/tomarket-game/v1/game/claim"
         for i in range(amount_pass):
             res = self.http(start_url, self.headers, data_game)
-            if res.status_code != 200:
+            if res is None or res.status_code != 200:
                 self.log(f"{merah}failed start game !")
                 return
 
@@ -139,7 +136,7 @@ class Tomartod:
                 {"game_id": "59bcd12e-04e2-404c-a172-311a0084587d", "points": point}
             )
             res = self.http(claim_url, self.headers, data_claim)
-            if res.status_code != 200:
+            if res is None or res.status_code != 200:
                 self.log(f"{merah}failed claim game point !")
                 continue
 
@@ -149,7 +146,7 @@ class Tomartod:
         url = "https://api-web.tomarket.ai/tomarket-game/v1/user/balance"
         while True:
             res = self.http(url, self.headers, "")
-            if res.status_code != 200:
+            if res is None:
                 self.log(f"{merah}failed fetch balance !")
                 continue
             data = res.json().get("data")
@@ -214,8 +211,8 @@ class Tomartod:
         self.play_game = config["play_game"]
         self.game_low_point = config["game_point"]["low"]
         self.game_high_point = config["game_point"]["high"]
-        self.add_time_min = config["add_time"]["min"]
-        self.add_time_max = config["add_time"]["max"]
+        self.add_time_min = config["additional_time"]["min"]
+        self.add_time_max = config["additional_time"]["max"]
 
     def http(self, url, headers, data):
         try:
