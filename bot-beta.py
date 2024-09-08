@@ -40,6 +40,7 @@ class Tomartod:
             "accept-language": "en-US,en;q=0.9",
         }
         self.ses = requests.Session()
+        self.interval = 60  # default interval, you may want to set this from config
 
     def set_proxy(self, proxy=None):
         if proxy:
@@ -193,6 +194,28 @@ class Tomartod:
     def log(self, msg):
         now = datetime.now().isoformat(" ").split(".")[0]
         print(f"{hitam}[{now}]{reset} {msg}")
+
+    def load_config(self, config_file):
+        """Load configuration from a JSON file."""
+        try:
+            with open(config_file, 'r') as f:
+                config = json.load(f)
+            # Example configuration processing
+            self.interval = config.get('interval', self.interval)
+            self.game_low_point = config.get('game_low_point', 0)
+            self.game_high_point = config.get('game_high_point', 100)
+        except Exception as e:
+            self.log(f"{merah}Error loading config: {e}")
+
+    def load_data(self, data_file):
+        """Load data from a text file."""
+        try:
+            with open(data_file, 'r') as f:
+                data = f.read().splitlines()
+            return data
+        except Exception as e:
+            self.log(f"{merah}Error loading data: {e}")
+            return []
 
     def main(self):
         banner = f"""
