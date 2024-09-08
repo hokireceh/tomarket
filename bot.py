@@ -5,11 +5,15 @@ import time
 import random
 import argparse
 import requests
-from base64 import b64decode, urlsafe_b64decode
+from base64 import urlsafe_b64decode
 from datetime import datetime
 from urllib.parse import parse_qs
 from colorama import init, Fore, Style
 
+# Initialize Colorama
+init()
+
+# Define color constants
 merah = Fore.LIGHTRED_EX
 kuning = Fore.LIGHTYELLOW_EX
 hijau = Fore.LIGHTGREEN_EX
@@ -104,7 +108,7 @@ class Tomartod:
         data = json.dumps({"game_id": "fa873d13-d831-4d6f-8aee-9cff7a1d0db1"})
         res = self.http(url, self.headers, data)
         if res.status_code != 200:
-            self.log(f"{merah}failed claim daily sign,check http.log last line !")
+            self.log(f"{merah}failed claim daily sign, check http.log last line !")
             return False
 
         data = res.json().get("data")
@@ -198,153 +202,71 @@ class Tomartod:
         datas = [i for i in open(file).read().splitlines() if len(i) > 0]
         if len(datas) <= 0:
             print(
-                f"{merah}0 account detected from {file}, fill your data in {file} first !"
+                f"{merah}0 account detected from {file}, fill your data in {file} first !{reset}"
             )
             sys.exit()
+
         return datas
 
     def load_config(self, file):
-        with open(file) as f:
-            config = json.load(f)
-        self.interval = int(config.get("interval", 60))
-        self.game_low_point = int(config.get("game_low_point", 1))
-        self.game_high_point = int(config.get("game_high_point", 10))
-        self.play_game = config.get("play_game", False)
-        self.add_time_min = int(config.get("add_time_min", 30))
-        self.add_time_max = int(config.get("add_time_max", 120))
-        self.log(f"{hijau}config loaded successfully!")
+        config = json.loads(open(file).read())
+        self.interval = config["interval"]
+        self.play_game = config["play_game"]
+        self.game_low_point = config["game_point"]["low"]
+        self.game_high_point = config["game_point"]["high"]
+        self.add_time_min = config["add_time"]["min"]
+        self.add_time_max = config["add_time"]["max"]
 
-    def save(self, id, token):
-        tokens = {}
-        if os.path.exists("tokens.json"):
-            tokens = json.loads(open("tokens.json").read())
-        tokens[str(id)] = token
-        with open("tokens.json", "w") as f:
-            json.dump(tokens, f, indent=4)
+    def http(self, url, headers, data):
+        res = self.ses.post(url, headers=headers, data=data)
+        with open("http.log", "a") as f:
+            f.write(f"[{datetime.now()}] {url} - {res.status_code}\n")
+            f.write(f"{data}\n")
+            f.write(f"{res.text}\n")
+        return res
 
-    def get(self, id):
-        if not os.path.exists("tokens.json"):
-            return None
-        tokens = json.loads(open("tokens.json").read())
-        return tokens.get(str(id))
+    def log(self, message):
+        print(f"{putih}[{datetime.now().strftime('%H:%M:%S')}] {message}{reset}")
 
-    def is_expired(self, token):
-        header, payload, sign = token.split(".")
-        deload = urlsafe_b64decode(payload + "==").decode()
-        jeload = json.loads(deload)
-        now = int(datetime.now().timestamp())
-        return now > jeload["exp"]
-
-    def http(self, url, headers, data=None):
-        while True:
-            try:
-                now = datetime.now().isoformat(" ").split(".")[0]
-                if data is None:
-                    res = self.ses.get(url, headers=headers, timeout=100)
-                elif data == "":
-                    res = self.ses.post(url, headers=headers, timeout=100)
-                else:
-                    res = self.ses.post(url, headers=headers, data=data, timeout=100)
-                with open("http.log", "a", encoding="utf-8") as f:
-                    f.write(f"{now} - {res.status_code} - {res.text}\n")
-                return res
-            except requests.exceptions.ProxyError:
-                print(f"{merah}bad proxy !")
-                time.sleep(1)
-
-            except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
-                print(f"{merah}connection error / connection timeout !")
-                time.sleep(1)
-                continue
-
-    def countdown(self, t):
-        for i in range(t, 0, -1):
-            menit, detik = divmod(i, 60)
-            jam, menit = divmod(menit, 60)
-            jam = str(jam).zfill(2)
-            menit = str(menit).zfill(2)
-            detik = str(detik).zfill(2)
-            print(f"{putih}waiting {jam}:{menit}:{detik}     ", flush=True, end="\r")
+    def countdown(self, seconds):
+        for i in range(seconds, 0, -1):
+            print(f"\r{putih}Waiting {i} seconds...", end="")
             time.sleep(1)
-        print("                                        ", flush=True, end="\r")
-
-    def log(self, msg):
-        now = datetime.now().isoformat(" ").split(".")[0]
-        print(f"{hitam}[{now}]{reset} {msg}{reset}")
+        print()
 
     def main(self):
-        banner = f"""
-{magenta}╭╮╭┳┳╮╱╱╱╱╭━╮╱╱╱╱╱╱╱╱╭╮
-{magenta}┃╰╯┃╭╯╭━━╮┃╋┣┳┳━┳┳━┳━┫╰╮
-{magenta}┃╭╮┃╰╮╰━━╯┃╭┫╭┫╋┣┫┻┫━┫╭┫
-{magenta}╰╯╰┻┻╯╱╱╱╱╰╯╰╯╰┳╯┣━┻━┻━╯
-{magenta}╱╱╱╱╱╱╱╱╱╱╱╱╱╱╱╰━╯
-    {putih}Auto Claim for {hijau}Tomarket
-    {hijau}Group : {putih}@airdrop_indonesia_update
-    {putih}Channel : {hijau}@GarapanAirdrop_Indonesia 
-    {hijau}Note : {putih}Hanya untuk pemakaian pribadi
-{kuning}Note : {merah}Jangan lupa ( git pull ) sebelum mulai
-        """
-        arg = argparse.ArgumentParser()
-        arg.add_argument("--data", default="data.txt")
-        arg.add_argument("--config", default="config.json")
-        arg.add_argument("--proxy", default="proxies.txt")
-        arg.add_argument("--marinkitagawa", action="store_true")
-        args = arg.parse_args()
-        if not args.marinkitagawa:
-            os.system("cls" if os.name == "nt" else "clear")
-        print(banner)
-        self.load_config(args.config)
-        datas = self.load_data(args.data)
-        proxies = open(args.proxy).read().splitlines() if os.path.exists(args.proxy) else []
-        self.log(f"{biru}total account : {putih}{len(datas)}")
-        self.log(f"{biru}total proxies detected : {putih}{len(proxies)}")
-        use_proxy = True if len(proxies) > 0 else False
-        self.log(f"{hijau}use proxy : {putih}{use_proxy}")
-        print(line)
-        while True:
-            list_countdown = []
-            _start = int(time.time())
-            for no, data in enumerate(datas):
-                if use_proxy:
-                    proxy = proxies[no % len(proxies)]
-                self.set_proxy(proxy if use_proxy else None)
-                parser = self.marinkitagawa(data)
-                user = json.loads(parser["user"])
-                id = user["id"]
-                self.log(
-                    f"{hijau}account number : {putih}{no+1}{hijau}/{putih}{len(datas)}"
-                )
-                self.log(f"{hijau}name : {putih}{user['first_name']}")
-                token = self.get(id)
-                if token is None:
-                    token = self.login(data)
-                    if token is None:
-                        continue
-                    self.save(id, token)
+        # Load configuration and data
+        self.load_config("config.json")
+        datas = self.load_data("data.txt")
+        self.log(f"{hijau}loaded {putih}{len(datas)}{hijau} accounts from {putih}data.txt")
 
-                if self.is_expired(token):
-                    token = self.login(data)
-                    if token is None:
-                        continue
-                    self.save(id, token)
+        while True:
+            for no, data in enumerate(datas):
+                parser = self.marinkitagawa(data)
+                user_data = parser["user"]
+
+                # Print the data to check its format
+                print(f"Data to be parsed: {user_data}")
+
+                try:
+                    user = json.loads(user_data)
+                except json.JSONDecodeError as e:
+                    self.log(f"{merah}JSON decode error: {e}")
+                    continue
+
+                token = self.login(user_data)
+                if token is None:
+                    self.log(f"{merah}failed to login !")
+                    continue
+
                 self.set_authorization(token)
-                result = self.get_balance()
-                print(line)
-                self.countdown(self.interval)
-                if result is not None:
-                    list_countdown.append(result)
-            _end = int(time.time())
-            _tot = _end - _start
-            if list_countdown:
-                _min = min(list_countdown) - _tot
-                self.countdown(_min)
-            else:
-                self.countdown(self.interval)  # Default countdown if no valid result
+                _next = self.get_balance()
+                if _next is None:
+                    self.log(f"{merah}stopped !")
+                    sys.exit()
+
+                self.countdown(_next)
 
 if __name__ == "__main__":
-    try:
-        app = Tomartod()
-        app.main()
-    except KeyboardInterrupt:
-        sys.exit()
+    app = Tomartod()
+    app.main()
