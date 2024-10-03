@@ -16,7 +16,10 @@ Join our Telegram group to stay updated and get instructions on how to use this 
 ## 🚀 Run File
 
 ```
-git clone https://github.com/hokireceh/tomarket.git && cd tomarket && python -m pip install -r requirements.txt
+git clone https://github.com/hokireceh/tomarket.git && cd tomarket
+```
+```
+python -m pip install -r requirements.txt
 ```
 
 | Run with Proxy                   | Run without Proxy   |
