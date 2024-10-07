@@ -22,15 +22,12 @@ git clone https://github.com/hokireceh/tomarket.git && cd tomarket
 python -m pip install -r requirements.txt
 ```
 
-| Run with Proxy                   | Run without Proxy   |
-| -------------------------------- | ------------------- |
-| `nano data.txt` `python bot.py` | `bot.py` `data.txt` |
 
 ## ⚠️ Note
-
+- Run with Proxy or Vps
 - Get auth data (`query_id=... /user=...`) in the `Application` tab in DevTools.
 - Auto features: Change `false` to `true` in the `config.json` file.
-- Supported commands: `/run_bot` `/query_id` `/proxy` `/proxy_web` (Join group to use these commands).
+- Supported commands: `python bot.py` `nano data.txt` `nano config.json` `nano proxies.txt` (Join group to use these commands).
 
 ## 💱 Support Me
 
